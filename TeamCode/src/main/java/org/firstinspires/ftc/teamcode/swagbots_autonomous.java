@@ -67,55 +67,11 @@ public class swagbots_autonomous extends LinearOpMode {
 
 //        while(opModeIsActive()){
 //        }
-//        RunSequence();
-        moveXY(0, 0.4, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 1)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
+
+        while(opModeIsActive()){
+            RunSequence();
         }
 
-        moveXY(0.4, 0, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < .25)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        while(opModeIsActive() && (runtime.seconds() < .25)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        ArmControl(1);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 17)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        HandControl();
-
-        ArmControl(-1);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 17)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        moveXY(-0.4, 0, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < .25)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        moveXY(0, -0.4, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 1)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
         telemetry.update();
 
         // move 2 blocks forward, turn 45 degrees depending on what side your on, and place a cone on the tallest tower. turn 135 degrees, go back 2 blocks and repeat.
@@ -136,6 +92,8 @@ public class swagbots_autonomous extends LinearOpMode {
             telemetry.update();
         }
 
+        sleep(100);
+
         ArmControl(1);
         runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 17)){
@@ -143,7 +101,11 @@ public class swagbots_autonomous extends LinearOpMode {
             telemetry.update();
         }
 
+        sleep(100);
+
         HandControl();
+
+        sleep(100);
 
         ArmControl(-1);
         runtime.reset();
@@ -151,6 +113,8 @@ public class swagbots_autonomous extends LinearOpMode {
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
+
+        sleep(100);
 
         moveXY(-0.4, 0, 0);
         runtime.reset();
