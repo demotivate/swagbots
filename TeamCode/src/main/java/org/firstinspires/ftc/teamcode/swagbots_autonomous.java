@@ -51,6 +51,7 @@ public class swagbots_autonomous extends LinearOpMode {
 //        int currentColorIndex;
 
         arm = hardwareMap.get(CRServo.class, "arm");
+        hand = hardwareMap.get(Servo.class, "hand");
 //        Coloursensor = hardwareMap.get(ColorSensor.class, "Coloursensor");
         TopRight = hardwareMap.get(DcMotor.class, "Top Right");
         BottomRight = hardwareMap.get(DcMotor.class, "Bottom Right");
@@ -65,76 +66,36 @@ public class swagbots_autonomous extends LinearOpMode {
         //.4 power for 1 second for 2 blocks
         // 17 seconds at full power for full arm raise
 
-//        while(opModeIsActive()){
-//        }
-//        RunSequence();
-        moveXY(0, 0.4, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 1)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
+        while(opModeIsActive()){
+            RunSequence();
         }
 
-        moveXY(0.4, 0, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < .25)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        while(opModeIsActive() && (runtime.seconds() < .25)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        ArmControl(1);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 17)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        HandControl();
-
-        ArmControl(-1);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 17)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        moveXY(-0.4, 0, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < .25)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        moveXY(0, -0.4, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 1)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
         telemetry.update();
 
         // move 2 blocks forward, turn 45 degrees depending on what side your on, and place a cone on the tallest tower. turn 135 degrees, go back 2 blocks and repeat.
     }
 
     private void RunSequence(){
-        moveXY(0, 0.4, 0);
+
+        HandControl();
+
+        moveXY(-0.4, 0, 0);
         runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 1)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
+        TerminateMovement();
 
-        moveXY(0.4, 0, 0);
+        moveXY(0, -0.4, 0);
         runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < .25)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
+        TerminateMovement();
+
+        HandControl();
 
         ArmControl(1);
         runtime.reset();
@@ -142,8 +103,10 @@ public class swagbots_autonomous extends LinearOpMode {
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
+        TerminateMovement();
 
         HandControl();
+        TerminateMovement();
 
         ArmControl(-1);
         runtime.reset();
@@ -151,20 +114,28 @@ public class swagbots_autonomous extends LinearOpMode {
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
+        TerminateMovement();
 
-        moveXY(-0.4, 0, 0);
+        moveXY(0, 0.4, 0);
         runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < .25)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
+        TerminateMovement();
 
-        moveXY(0, -0.4, 0);
+        moveXY(0.4, 0, 0);
         runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 1)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
+        TerminateMovement();
+    }
+
+    private void TerminateMovement(){
+        ArmControl(0);
+        moveXY(0, 0, 0);
     }
 
     /**
@@ -176,7 +147,7 @@ public class swagbots_autonomous extends LinearOpMode {
     }
 
     private void HandControl(){
-        hand.setPosition(hand.getPosition() == 0 ? 1 : 0);
+        hand.setPosition((hand.getPosition()) == 0 ? 1 : 0);
     }
 
     /**
@@ -210,17 +181,11 @@ public class swagbots_autonomous extends LinearOpMode {
      * Describe this function...
      */
     private void omnidirectional(double x, double y, double pivot) {
-        TopRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        BottomRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        waitForStart();
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                TopRight.setPower(-pivot + (y - x));
-                BottomRight.setPower(-pivot + y + x);
-                TopLeft.setPower(pivot + y + x);
-                BottomLeft.setPower(pivot + (y - x));
-                telemetry.update();
-            }
-        }
+
+
+        TopRight.setPower(-pivot - y + x);
+        BottomRight.setPower(pivot - y - x);
+        TopLeft.setPower(-pivot - y - x);
+        BottomLeft.setPower(pivot - y + x);
     }
 }

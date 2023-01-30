@@ -18,6 +18,7 @@ public class swagbots_teleop extends LinearOpMode {
     private DcMotor BottomRight;
     private DcMotor TopLeft;
     private CRServo arm;
+    private double SpeedMult;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -27,12 +28,14 @@ public class swagbots_teleop extends LinearOpMode {
         BottomRight = hardwareMap.get(DcMotor.class, "Bottom Right");
         TopLeft = hardwareMap.get(DcMotor.class, "Top Left");
         arm = hardwareMap.get(CRServo.class, "arm");
+        SpeedMult = 0.75;
 
         // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
+                SpeedControl();
                 WheelControl();
                 ArmControl();
                 HandControl();
@@ -41,10 +44,19 @@ public class swagbots_teleop extends LinearOpMode {
                 telemetry.addData("bot right wheel power", BottomRight.getPower());
                 telemetry.addData("top left wheel power", TopLeft.getPower());
                 telemetry.addData("top right wheel power", TopRight.getPower());
+                telemetry.addData("curr power", SpeedMult);
                 telemetry.update();
             }
         }
     }
+
+    private void SpeedControl(){
+        if(gamepad1.right_bumper) {
+            SpeedMult = (SpeedMult == 0.75) ? 0.30 : 0.75;
+            sleep(250);
+        }
+    }
+
     /**
      * Describe this function...
      */
@@ -52,14 +64,20 @@ public class swagbots_teleop extends LinearOpMode {
         double vertical;
         double horizontal;
         double pivot;
-
-        horizontal = -.25 * gamepad1.right_stick_y;
-        vertical = 0.25 * gamepad1.right_stick_x;
-        pivot = 0.25 * gamepad1.left_stick_x;
-        TopRight.setPower(-pivot + (vertical - horizontal));
-        BottomRight.setPower(-pivot + vertical + horizontal);
-        TopLeft.setPower(pivot + vertical + horizontal);
-        BottomLeft.setPower(pivot + (vertical - horizontal));
+        TopRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BottomRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        TopLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BottomLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        horizontal = SpeedMult * gamepad1.left_stick_y;
+        vertical = -SpeedMult * gamepad1.left_stick_x;
+        pivot = SpeedMult * gamepad1.right_stick_x;
+        telemetry.addData("Horizontal",horizontal);
+        telemetry.addData("Vertical",vertical);
+        telemetry.addData("Pivot",pivot);
+        TopRight.setPower(-pivot - vertical + horizontal);
+        BottomRight.setPower(pivot - vertical - horizontal);
+        TopLeft.setPower(-pivot - vertical - horizontal);
+        BottomLeft.setPower(pivot - vertical + horizontal);
     }
 
     /**
