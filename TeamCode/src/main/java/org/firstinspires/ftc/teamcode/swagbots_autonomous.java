@@ -97,6 +97,8 @@ public class swagbots_autonomous extends LinearOpMode {
 
         HandControl();
 
+        sleep(100);
+
         ArmControl(1);
         runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 17)){
@@ -105,8 +107,12 @@ public class swagbots_autonomous extends LinearOpMode {
         }
         TerminateMovement();
 
+        sleep(100);
+
         HandControl();
         TerminateMovement();
+
+        sleep(100);
 
         ArmControl(-1);
         runtime.reset();
