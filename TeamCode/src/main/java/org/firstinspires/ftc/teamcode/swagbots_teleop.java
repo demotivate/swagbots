@@ -20,6 +20,8 @@ public class swagbots_teleop extends LinearOpMode {
     private CRServo arm;
     private double SpeedMult;
 
+    private double CurrRotation;
+
     @Override
     public void runOpMode() throws InterruptedException {
         BottomLeft = hardwareMap.get(DcMotor.class, "Bottom Left");
@@ -29,6 +31,7 @@ public class swagbots_teleop extends LinearOpMode {
         TopLeft = hardwareMap.get(DcMotor.class, "Top Left");
         arm = hardwareMap.get(CRServo.class, "arm");
         SpeedMult = 0.75;
+        CurrRotation = 0;
 
         // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -61,6 +64,43 @@ public class swagbots_teleop extends LinearOpMode {
      * Describe this function...
      */
     private void WheelControl() {
+        double relVertical, vertical;
+        double relHorizontal, horizontal;
+        double pivot;
+        TopRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BottomRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        TopLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BottomLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        pivot = SpeedMult * gamepad1.right_stick_x;
+        CurrRotation += pivot * 360;
+        double goalRotation = -CurrRotation;
+
+        relHorizontal = SpeedMult * gamepad1.left_stick_y;
+        double relHorX = Math.sin(goalRotation) * relHorizontal;
+        double relHorY = Math.cos(goalRotation) * relHorizontal;
+
+        relVertical = -SpeedMult * gamepad1.left_stick_x;
+        double relVelX = Math.sin(goalRotation) * relVertical;
+        double relVelY = Math.cos(goalRotation) * relVertical;
+
+        horizontal = relHorY + relVelY;
+        vertical = relHorX + relVelX;
+
+        telemetry.addData("Horizontal",horizontal);
+        telemetry.addData("Vertical",vertical);
+        telemetry.addData("Pivot",pivot);
+        telemetry.addData("relHor",relHorizontal);
+
+        telemetry.addData("relVel",relVertical);
+        TopRight.setPower(-pivot - vertical + horizontal);
+        BottomRight.setPower(pivot - vertical - horizontal);
+        TopLeft.setPower(-pivot - vertical - horizontal);
+        BottomLeft.setPower(pivot - vertical + horizontal);
+
+    }
+
+    private void WheelControlBackup() {
         double vertical;
         double horizontal;
         double pivot;
@@ -68,9 +108,12 @@ public class swagbots_teleop extends LinearOpMode {
         BottomRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         TopLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BottomLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        pivot = SpeedMult * gamepad1.right_stick_x;
+
         horizontal = SpeedMult * gamepad1.left_stick_y;
         vertical = -SpeedMult * gamepad1.left_stick_x;
-        pivot = SpeedMult * gamepad1.right_stick_x;
+
         telemetry.addData("Horizontal",horizontal);
         telemetry.addData("Vertical",vertical);
         telemetry.addData("Pivot",pivot);

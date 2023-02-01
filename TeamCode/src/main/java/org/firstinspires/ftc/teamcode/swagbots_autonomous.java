@@ -10,6 +10,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
+import org.firstinspires.ftc.robotcore.external.navigation.Rotation;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.apriltag.AprilTagDetection;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -23,6 +31,11 @@ public class swagbots_autonomous extends LinearOpMode {
     private DcMotor BottomRight;
     private DcMotor TopLeft;
     private DcMotor BottomLeft;
+
+//    private OpenCvCamera camera;
+//    private AprilTagDetection aprilTagDetection;
+//    private DcMotor LiftMotor;
+
     private ElapsedTime runtime = new ElapsedTime();
 
     /**
@@ -57,6 +70,7 @@ public class swagbots_autonomous extends LinearOpMode {
         BottomRight = hardwareMap.get(DcMotor.class, "Bottom Right");
         TopLeft = hardwareMap.get(DcMotor.class, "Top Left");
         BottomLeft = hardwareMap.get(DcMotor.class, "Bottom Left");
+//        LiftMotor = hardwareMap.get(DcMotor.class, "Lift Motor");
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Put initialization blocks here.
@@ -65,6 +79,7 @@ public class swagbots_autonomous extends LinearOpMode {
         // Put loop blocks here.
         //.4 power for 1 second for 2 blocks
         // 17 seconds at full power for full arm raise
+        // about 1.2 second at full power for one rotation
 
         while(opModeIsActive()){
             RunSequence();
@@ -73,6 +88,10 @@ public class swagbots_autonomous extends LinearOpMode {
         telemetry.update();
 
         // move 2 blocks forward, turn 45 degrees depending on what side your on, and place a cone on the tallest tower. turn 135 degrees, go back 2 blocks and repeat.
+    }
+
+    private void RotationTest(){
+        moveXY(0, 0, 1);
     }
 
     private void RunSequence(){
