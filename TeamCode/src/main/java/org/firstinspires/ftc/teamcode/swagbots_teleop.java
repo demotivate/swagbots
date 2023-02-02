@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
-
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Swagbots Teleop", group = "swagbots")
 public class swagbots_teleop extends LinearOpMode {
@@ -21,6 +21,8 @@ public class swagbots_teleop extends LinearOpMode {
     private double SpeedMult;
 
     private double CurrRotation;
+
+    private ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -48,6 +50,7 @@ public class swagbots_teleop extends LinearOpMode {
                 telemetry.addData("top left wheel power", TopLeft.getPower());
                 telemetry.addData("top right wheel power", TopRight.getPower());
                 telemetry.addData("curr power", SpeedMult);
+                telemetry.addData("curr rotation", CurrRotation);
                 telemetry.update();
             }
         }
@@ -73,12 +76,14 @@ public class swagbots_teleop extends LinearOpMode {
         BottomLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         pivot = SpeedMult * gamepad1.right_stick_x;
-        CurrRotation += pivot * 360;
+        CurrRotation += Math.toRadians(pivot / 1371.955 * 134.528);
         double goalRotation = -CurrRotation;
 
         relHorizontal = SpeedMult * gamepad1.left_stick_y;
         double relHorX = Math.sin(goalRotation) * relHorizontal;
+        telemetry.addData("sin", Math.sin(goalRotation));
         double relHorY = Math.cos(goalRotation) * relHorizontal;
+        telemetry.addData("cos", Math.cos(goalRotation));
 
         relVertical = -SpeedMult * gamepad1.left_stick_x;
         double relVelX = Math.sin(goalRotation) * relVertical;

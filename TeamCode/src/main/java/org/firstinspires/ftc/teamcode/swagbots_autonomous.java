@@ -17,8 +17,8 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 
 
 @Autonomous(name = "Swagbots Autonomous", group = "swagbots")
@@ -114,31 +114,8 @@ public class swagbots_autonomous extends LinearOpMode {
         }
         TerminateMovement();
 
-        HandControl();
+        //arm code
 
-        sleep(100);
-
-        ArmControl(1);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 17)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-        TerminateMovement();
-
-        sleep(100);
-
-        HandControl();
-        TerminateMovement();
-
-        sleep(100);
-
-        ArmControl(-1);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 17)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
         TerminateMovement();
 
         moveXY(0, 0.4, 0);
