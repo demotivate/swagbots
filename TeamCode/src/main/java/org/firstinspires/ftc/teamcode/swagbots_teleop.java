@@ -17,23 +17,31 @@ public class swagbots_teleop extends LinearOpMode {
     private DcMotor TopRight;
     private DcMotor BottomRight;
     private DcMotor TopLeft;
-    private CRServo arm;
+    private DcMotor arm;
     private double SpeedMult;
 
     private double CurrRotation;
 
     private ElapsedTime runtime = new ElapsedTime();
+    private int encoder;
 
     @Override
     public void runOpMode() throws InterruptedException {
+
         BottomLeft = hardwareMap.get(DcMotor.class, "Bottom Left");
         hand = hardwareMap.get(Servo.class, "hand");
         TopRight = hardwareMap.get(DcMotor.class, "Top Right");
         BottomRight = hardwareMap.get(DcMotor.class, "Bottom Right");
         TopLeft = hardwareMap.get(DcMotor.class, "Top Left");
-        arm = hardwareMap.get(CRServo.class, "arm");
+        arm = hardwareMap.get(DcMotor.class, "Arm");
+
         SpeedMult = 0.75;
         CurrRotation = 0;
+
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setTargetPosition(0);
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setPower(0.7);
 
         // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -41,7 +49,7 @@ public class swagbots_teleop extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 SpeedControl();
-                WheelControl();
+                WheelControlBackup();
                 ArmControl();
                 HandControl();
                 telemetry.addData("hand pos", hand.getPosition());
@@ -80,14 +88,18 @@ public class swagbots_teleop extends LinearOpMode {
         double goalRotation = -CurrRotation;
 
         relHorizontal = SpeedMult * gamepad1.left_stick_y;
-        double relHorX = Math.sin(goalRotation) * relHorizontal;
+
+        double sin = Math.sin(goalRotation);
+        double cos = Math.cos(goalRotation);
+
+        double relHorX = ((sin == 0) ? 1 : sin) * relHorizontal;
         telemetry.addData("sin", Math.sin(goalRotation));
-        double relHorY = Math.cos(goalRotation) * relHorizontal;
+        double relHorY = ((cos == 0) ? 1 : cos) * relHorizontal;
         telemetry.addData("cos", Math.cos(goalRotation));
 
         relVertical = -SpeedMult * gamepad1.left_stick_x;
-        double relVelX = Math.sin(goalRotation) * relVertical;
-        double relVelY = Math.cos(goalRotation) * relVertical;
+        double relVelX = ((sin == 0) ? 1 : sin) * relVertical;
+        double relVelY = ((cos == 0) ? 1 : cos) * relVertical;
 
         horizontal = relHorY + relVelY;
         vertical = relHorX + relVelX;
@@ -122,8 +134,8 @@ public class swagbots_teleop extends LinearOpMode {
         telemetry.addData("Horizontal",horizontal);
         telemetry.addData("Vertical",vertical);
         telemetry.addData("Pivot",pivot);
-        TopRight.setPower(-pivot - vertical + horizontal);
-        BottomRight.setPower(pivot - vertical - horizontal);
+        TopRight.setPower(1.2 * (-pivot - vertical + horizontal));
+        BottomRight.setPower(1.1 * (pivot - vertical - horizontal));
         TopLeft.setPower(-pivot - vertical - horizontal);
         BottomLeft.setPower(pivot - vertical + horizontal);
     }
@@ -132,8 +144,18 @@ public class swagbots_teleop extends LinearOpMode {
      * Describe this function...
      */
     private void ArmControl() {
-        float power = gamepad1.right_trigger - gamepad1.left_trigger;
-        arm.setPower(power);
+        encoder += 15 * gamepad1.right_stick_y;
+        telemetry.addData("Cheese:", encoder);
+        arm.setPower(50);
+        arm.setTargetPosition(encoder);
+        if (encoder < 0) {
+            encoder = 0;
+        } else if (encoder > 600) {
+            encoder = 600;
+        } else {
+            encoder += 1 * gamepad1.left_stick_y;
+        }
+        telemetry.update();
     }
 
     /**
