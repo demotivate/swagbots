@@ -39,9 +39,10 @@ public class swagbots_teleop extends LinearOpMode {
         CurrRotation = 0;
 
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setTargetPosition(0);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setPower(0.7);
+        arm.setPower(1);
 
         // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -144,16 +145,16 @@ public class swagbots_teleop extends LinearOpMode {
      * Describe this function...
      */
     private void ArmControl() {
-        encoder += 15 * gamepad1.right_stick_y;
+//        encoder += 15 * gamepad1.right_stick_y;
         telemetry.addData("Cheese:", encoder);
-        arm.setPower(50);
+        arm.setPower(1);
         arm.setTargetPosition(encoder);
         if (encoder < 0) {
             encoder = 0;
-        } else if (encoder > 600) {
-            encoder = 600;
+        } else if (encoder > 6000) {
+            encoder = 6000;
         } else {
-            encoder += 1 * gamepad1.left_stick_y;
+            encoder += 30 * gamepad1.right_stick_y;
         }
         telemetry.update();
     }
