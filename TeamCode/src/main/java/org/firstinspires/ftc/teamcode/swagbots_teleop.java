@@ -145,7 +145,6 @@ public class swagbots_teleop extends LinearOpMode {
      * Describe this function...
      */
     private void ArmControl() {
-//        encoder += 15 * gamepad1.right_stick_y;
         telemetry.addData("Cheese:", encoder);
         arm.setPower(1);
         arm.setTargetPosition(encoder);
@@ -157,7 +156,7 @@ public class swagbots_teleop extends LinearOpMode {
             encoder += 30 * gamepad1.right_stick_y;
         }
         telemetry.update();
-    }//asdfasdfds
+    }
 
     /**
      * Describe this function...

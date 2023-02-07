@@ -38,6 +38,8 @@ public class swagbots_autonomous extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
+    private int encoder;
+
     /**
      * Describe this function...
      */
@@ -61,42 +63,36 @@ public class swagbots_autonomous extends LinearOpMode {
      */
     @Override
     public void runOpMode() {
-//        int currentColorIndex;
-
         arm = hardwareMap.get(DcMotor.class, "Arm");
         hand = hardwareMap.get(Servo.class, "hand");
-//        Coloursensor = hardwareMap.get(ColorSensor.class, "Coloursensor");
         TopRight = hardwareMap.get(DcMotor.class, "Top Right");
         BottomRight = hardwareMap.get(DcMotor.class, "Bottom Right");
         TopLeft = hardwareMap.get(DcMotor.class, "Top Left");
         BottomLeft = hardwareMap.get(DcMotor.class, "Bottom Left");
-//        LiftMotor = hardwareMap.get(DcMotor.class, "Lift Motor");
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        arm.setTargetPosition(0);
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setPower(1);
+
+        hand.setPosition(0); /** check later if this start pos is correct **/
 
         // Put initialization blocks here.
         waitForStart();
-
-        // Put loop blocks here.
-        //.4 power for 1 second for 2 blocks
-        // 17 seconds at full power for full arm raise
-        // about 1.2 second at full power for one rotation
 
         while(opModeIsActive()){
             RunSequence();
         }
 
         telemetry.update();
-
-        // move 2 blocks forward, turn 45 degrees depending on what side your on, and place a cone on the tallest tower. turn 135 degrees, go back 2 blocks and repeat.
-    }
-
-    private void RotationTest(){
-        moveXY(0, 0, 1);
     }
 
     private void RunSequence(){
 
         HandControl();
+
         moveXY(-.2, 0, 0);
         runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 2.8)){
@@ -104,6 +100,8 @@ public class swagbots_autonomous extends LinearOpMode {
             telemetry.update();
         }
         TerminateMovement();
+
+        HandControl();
 
         moveXY(0, -.2, 0);
         runtime.reset();
@@ -113,7 +111,11 @@ public class swagbots_autonomous extends LinearOpMode {
         }
         TerminateMovement();
 
-        //arm code
+        //arm up
+
+        HandControl();
+
+        //arm down
 
         TerminateMovement();
 
@@ -132,6 +134,8 @@ public class swagbots_autonomous extends LinearOpMode {
             telemetry.update();
         }
         TerminateMovement();
+
+        HandControl();
     }
 
     private void TerminateMovement(){
@@ -155,36 +159,14 @@ public class swagbots_autonomous extends LinearOpMode {
     /**
      * Describe this function...
      */
-//    private void DetectColor() {
-//        int currentColor = 0;
-//
-//        telemetry.addData("Blue", Coloursensor.blue());
-//        telemetry.addData("Green", Coloursensor.green());
-//        telemetry.addData("Red", Coloursensor.red());
-//        currentColor = Color.argb(Coloursensor.alpha(), Coloursensor.red(), Coloursensor.green(), Coloursensor.blue());
-//        RobotLog.ii("DbgLog", String.valueOf(currentColor));
-//        telemetry.addData("hue", JavaUtil.colorToHue(currentColor));
-//        telemetry.addData("saturation", JavaUtil.colorToSaturation(currentColor));
-//        telemetry.addData("value", JavaUtil.colorToValue(currentColor));
-//        currentColor = JavaUtil.hsvToColor(JavaUtil.colorToHue(currentColor), JavaUtil.colorToHue(currentColor), JavaUtil.colorToHue(currentColor));
-//        RobotLog.ii("DbgLog", String.valueOf(currentColor));
-//    }
-
-    /**
-     * Describe this function...
-     */
     private void moveXY(double xVal, double yVal, double rVal) {
         omnidirectional(xVal, yVal, rVal);
-//        sleep(duration);
-//        omnidirectional(0, 0, 0);
     }
 
     /**
      * Describe this function...
      */
     private void omnidirectional(double x, double y, double pivot) {
-
-
         TopRight.setPower(1.2 * (-pivot - y + x));
         BottomRight.setPower(1.1 * (pivot - y - x));
         TopLeft.setPower((-pivot - y - x));
