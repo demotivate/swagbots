@@ -51,11 +51,6 @@ public class swagbots_teleop extends LinearOpMode {
                 ArmControl();
                 HandControl();
                 telemetry.addData("hand pos", hand.getPosition());
-                telemetry.addData("bot left wheel power", BottomLeft.getPower());
-                telemetry.addData("bot right wheel power", BottomRight.getPower());
-                telemetry.addData("top left wheel power", TopLeft.getPower());
-                telemetry.addData("top right wheel power", TopRight.getPower());
-                telemetry.addData("curr rotation", CurrRotation);
                 telemetry.update();
             }
         }
@@ -134,7 +129,7 @@ public class swagbots_teleop extends LinearOpMode {
      * Describe this function...
      */
     private void ArmControl() {
-        telemetry.addData("Cheese:", encoder);
+        telemetry.addData("Encoder:", encoder);
         arm.setPower(1);
         arm.setTargetPosition(encoder);
         if (encoder < 0) {
