@@ -47,7 +47,7 @@ public class swagbots_teleop extends LinearOpMode {
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                WheelControlBackup();
+                WheelControl();
                 ArmControl();
                 HandControl();
                 telemetry.addData("hand pos", hand.getPosition());
@@ -107,7 +107,7 @@ public class swagbots_teleop extends LinearOpMode {
 //
 //    }
 
-    private void WheelControlBackup() {
+    private void WheelControl() {
         double vertical;
         double horizontal;
         double pivot;
@@ -116,7 +116,7 @@ public class swagbots_teleop extends LinearOpMode {
         TopLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BottomLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        double speedDiv = (gamepad1.left_stick_button) ? 3.5 : 1;
+        double speedDiv = (gamepad1.left_trigger > 0) ? 3.5 : 1;
         pivot = gamepad1.right_stick_x / speedDiv;
         horizontal = gamepad1.left_stick_y / speedDiv;
         vertical = -gamepad1.left_stick_x / speedDiv;

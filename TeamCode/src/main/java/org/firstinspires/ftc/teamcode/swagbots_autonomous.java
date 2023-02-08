@@ -43,9 +43,9 @@ public class swagbots_autonomous extends LinearOpMode {
     double tagsize = 0.166;
 
 //    int ID_TAG_OF_INTEREST = 18; // Tag ID 18 from the 36h11 family
-    int LEFT = 0;
-    int MIDDLE = 1;
-    int RIGHT = 2;
+    int LEFT = 1;
+    int MIDDLE = 2;
+    int RIGHT = 3;
 
     AprilTagDetection tagOfInterest = null;
 
@@ -210,45 +210,30 @@ public class swagbots_autonomous extends LinearOpMode {
         }
 
         /* Actually do something useful */
-        if(tagOfInterest == null)
-        {
-            /*
-             * Insert your autonomous code here, presumably running some default configuration
-             * since the tag was never sighted during INIT
-             */
-            while(opModeIsActive()){
-                RunSequence();
-            }
-        }
-        else
-        {
-            /*
-             * Insert your autonomous code here, probably using the tag pose to decide your configuration.
-             */
-            while(opModeIsActive()){
-                RunSequence();
-            }
-
-            // e.g.
-            if(tagOfInterest.pose.x <= 20)
-            {
-                // do something
-            }
-            else if(tagOfInterest.pose.x >= 20 && tagOfInterest.pose.x <= 50)
-            {
-                // do something else
-            }
-            else if(tagOfInterest.pose.x >= 50)
-            {
-                // do something else
-            }
+        if(tagOfInterest == null){
+            //default trajectory
+            RunSequence(0);
+        } else if(tagOfInterest.id == LEFT){
+            //end left
+            RunSequence(1);
+        } else if(tagOfInterest.id == MIDDLE){
+            //end middle
+            RunSequence(2);
+        } else {
+            //end right
+            RunSequence(3);
         }
 
         telemetry.update();
     }
 
-    private void RunSequence(){
-
+    /**
+     * 0 - default trajectory
+     * 1 - end left
+     * 2 - end middle
+     * 3 - end right
+     */
+    private void RunSequence(int trajectory){
         HandControl();
 
         moveXY(-.2, 0, 0);
@@ -287,11 +272,34 @@ public class swagbots_autonomous extends LinearOpMode {
 
         moveXY(.2, 0, 0);
         runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 2.8)){
+        while(opModeIsActive() && (runtime.seconds() < ((trajectory == 0) ? 2.8 : 1.4))){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
         TerminateMovement();
+
+        switch(trajectory){
+            case 1:
+                moveXY(0, .2, 0);
+                runtime.reset();
+                while(opModeIsActive() && (runtime.seconds() < 1.4)){
+                    telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+                    telemetry.update();
+                }
+                TerminateMovement();
+                break;
+            case 3:
+                moveXY(0, -.2, 0);
+                runtime.reset();
+                while(opModeIsActive() && (runtime.seconds() < 1.4)){
+                    telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+                    telemetry.update();
+                }
+                TerminateMovement();
+                break;
+            default:
+                break;
+        }
 
         HandControl();
     }
