@@ -20,8 +20,6 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.ArrayList;
 
-
-
 @Autonomous(name = "Swagbots Autonomous", group = "swagbots")
 public class swagbots_autonomous extends LinearOpMode {
 
@@ -64,24 +62,6 @@ public class swagbots_autonomous extends LinearOpMode {
     private int encoder;
 
     /**
-     * Describe this function...
-     */
-    private int CheckColor() {
-        int color = 0;
-
-        if (Color.red(color) > 100 && JavaUtil.colorToSaturation(color) > 100 && JavaUtil.colorToValue(color) > 100) {
-            return 1;
-        }
-        if (Color.green(color) > 100 && JavaUtil.colorToSaturation(color) > 100 && JavaUtil.colorToValue(color) > 100) {
-            return 2;
-        }
-        if (Color.blue(color) > 100 && JavaUtil.colorToSaturation(color) > 100 && JavaUtil.colorToValue(color) > 100) {
-            return 3;
-        }
-        return 0;
-    }
-
-    /**
      * This function is executed when this Op Mode is selected from the Driver Station.
      */
     @Override
@@ -118,7 +98,6 @@ public class swagbots_autonomous extends LinearOpMode {
         BottomLeft = hardwareMap.get(DcMotor.class, "Bottom Left");
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setTargetPosition(0);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -228,6 +207,9 @@ public class swagbots_autonomous extends LinearOpMode {
     }
 
     /**
+     * the sequence of movements to move to a medium/small pole and place cone
+     *
+     * trajectory arguments meaning
      * 0 - default trajectory
      * 1 - end left
      * 2 - end middle
@@ -235,6 +217,11 @@ public class swagbots_autonomous extends LinearOpMode {
      */
     private void RunSequence(int trajectory){
         HandControl();
+        ArmControlPreset(1);
+        while(opModeIsActive() && (runtime.seconds() < 1)){
+            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+            telemetry.update();
+        }
 
         moveXY(-.2, 0, 0);
         runtime.reset();
@@ -243,6 +230,12 @@ public class swagbots_autonomous extends LinearOpMode {
             telemetry.update();
         }
         TerminateMovement();
+
+        ArmControlPreset(0);
+        while(opModeIsActive() && (runtime.seconds() < 1)){
+            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+            telemetry.update();
+        }
 
         HandControl();
 
@@ -255,10 +248,20 @@ public class swagbots_autonomous extends LinearOpMode {
         TerminateMovement();
 
         //arm up
+        ArmControlPreset(3);
+        while(opModeIsActive() && (runtime.seconds() < 5)){
+            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+            telemetry.update();
+        }
 
         HandControl();
 
         //arm down
+        ArmControlPreset(0);
+        while(opModeIsActive() && (runtime.seconds() < 5)){
+            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+            telemetry.update();
+        }
 
         TerminateMovement();
 
@@ -304,18 +307,51 @@ public class swagbots_autonomous extends LinearOpMode {
         HandControl();
     }
 
+    /**
+     * terminates movement
+     */
     private void TerminateMovement(){
-        ArmControl(0);
         moveXY(0, 0, 0);
         sleep(100);
     }
 
     /**
-     * Describe this function...
+     * arm control specific
      */
-    private void ArmControl(double direction) {
-        arm.setPower(direction);
-//        sleep(duration);
+    private void ArmControl(int target) {
+        arm.setPower(1);
+        if (target < 0){
+            target = 0;
+        }
+        else if(target > 11416){
+            target = 11416;
+        }
+        arm.setTargetPosition(target);
+    }
+
+    /**
+     *
+     * @param position
+     * position = 0: min 0
+     * = 1: grab cone height 884
+     * = 2: low pole 6736
+     * = 3: medium pole 10473
+     */
+    private void ArmControlPreset(int position){
+        arm.setPower(1);
+        switch(position){
+            case 0:
+                arm.setTargetPosition(0);
+            case 1:
+                arm.setTargetPosition(884);
+            case 2:
+                arm.setTargetPosition(6736);
+            case 3:
+                arm.setTargetPosition(10473);
+            default:
+                return;
+        }
+
     }
 
     private void HandControl(){

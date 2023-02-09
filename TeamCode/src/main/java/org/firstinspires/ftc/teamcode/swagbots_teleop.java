@@ -36,11 +36,12 @@ public class swagbots_teleop extends LinearOpMode {
 
         CurrRotation = 0;
 
-        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setTargetPosition(0);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setPower(1);
+        telemetry.addData("curr motor pos", arm.getCurrentPosition());
+        telemetry.update();
 
         // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -126,18 +127,33 @@ public class swagbots_teleop extends LinearOpMode {
     }
 
     /**
-     * Describe this function...
+     * arm control
+     * max 11416
+     * medium pole 10473
+     * low pole 6736
+     * grab cone height 884
      */
     private void ArmControl() {
+        if(gamepad1.a){
+            encoder = 884;
+        }
+        if(gamepad1.x){
+            encoder = 6736;
+        }
+        if(gamepad1.b){
+            encoder = 10473;
+        }
         telemetry.addData("Encoder:", encoder);
         arm.setPower(1);
         arm.setTargetPosition(encoder);
         if (encoder < 0) {
             encoder = 0;
-        } else if (encoder > 6000) {
-            encoder = 6000;
-        } else {
-            encoder += 30 * gamepad1.right_stick_y;
+        }
+        else if (encoder > 11416) {
+            encoder = 11416;
+        }
+        else {
+            encoder += 30 * -gamepad1.right_stick_y;
         }
         telemetry.update();
     }
