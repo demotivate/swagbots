@@ -384,8 +384,10 @@ public class swagbots_autonomous extends LinearOpMode {
      * Describe this function...
      */
     private void omnidirectional(double x, double y, double pivot) {
-        TopRight.setPower(1.2 * (-pivot - y + x));
-        BottomRight.setPower(1.1 * (pivot - y - x));
+        //1.2
+        TopRight.setPower((-pivot - y + x));
+        //1.1
+        BottomRight.setPower((pivot - y - x));
         TopLeft.setPower((-pivot - y - x));
         BottomLeft.setPower((pivot - y + x));
     }

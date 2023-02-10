@@ -118,8 +118,10 @@ public class swagbots_teleop extends LinearOpMode {
 //        telemetry.addData("Horizontal",horizontal);
 //        telemetry.addData("Vertical",vertical);
 //        telemetry.addData("Pivot",pivot);
-        TopRight.setPower(1.2 * (-pivot - vertical + horizontal));
-        BottomRight.setPower(1.1 * (pivot - vertical - horizontal));
+        //1.2
+        TopRight.setPower((-pivot - vertical + horizontal));
+        //1.1
+        BottomRight.setPower((pivot - vertical - horizontal));
         TopLeft.setPower(-pivot - vertical - horizontal);
         BottomLeft.setPower(pivot - vertical + horizontal);
     }
@@ -132,10 +134,6 @@ public class swagbots_teleop extends LinearOpMode {
      * grab cone height 950
      */
     private void ArmControl() {
-        if(gamepad1.dpad_down){
-            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            return;
-        }
         if(gamepad1.a){
             encoder = 950;
         }
