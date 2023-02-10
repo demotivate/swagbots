@@ -26,7 +26,7 @@ public class ResetEncoder extends LinearOpMode {
                     arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 }
                 arm.setTargetPosition(encoder);
-                encoder += 30 * -gamepad1.right_stick_y;
+                encoder += -gamepad1.right_stick_y;
             }
         }
     }
