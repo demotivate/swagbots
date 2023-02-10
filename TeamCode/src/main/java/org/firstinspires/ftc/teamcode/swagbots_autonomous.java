@@ -103,7 +103,7 @@ public class swagbots_autonomous extends LinearOpMode {
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setPower(1);
 
-        hand.setPosition(0); /** check later if this start pos is correct **/
+        hand.setPosition(1);
 
         // Put initialization blocks here.
 //        waitForStart();
@@ -218,6 +218,7 @@ public class swagbots_autonomous extends LinearOpMode {
     private void RunSequence(int trajectory){
         HandControl();
         ArmControlPreset(1);
+        runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 1)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
@@ -225,13 +226,14 @@ public class swagbots_autonomous extends LinearOpMode {
 
         moveXY(-.2, 0, 0);
         runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 2.8)){
+        while(opModeIsActive() && (runtime.seconds() < 3)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
         TerminateMovement();
 
         ArmControlPreset(0);
+        runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 1)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
@@ -249,6 +251,7 @@ public class swagbots_autonomous extends LinearOpMode {
 
         //arm up
         ArmControlPreset(3);
+        runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 5)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
@@ -258,6 +261,7 @@ public class swagbots_autonomous extends LinearOpMode {
 
         //arm down
         ArmControlPreset(0);
+        runtime.reset();
         while(opModeIsActive() && (runtime.seconds() < 5)){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
@@ -275,7 +279,7 @@ public class swagbots_autonomous extends LinearOpMode {
 
         moveXY(.2, 0, 0);
         runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < ((trajectory == 0) ? 2.8 : 1.4))){
+        while(opModeIsActive() && (runtime.seconds() < ((trajectory == 0) ? 3 : 0))){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
@@ -333,7 +337,7 @@ public class swagbots_autonomous extends LinearOpMode {
      *
      * @param position
      * position = 0: min 0
-     * = 1: grab cone height 884
+     * = 1: grab cone height 950
      * = 2: low pole 6736
      * = 3: medium pole 10473
      */
@@ -341,17 +345,28 @@ public class swagbots_autonomous extends LinearOpMode {
         arm.setPower(1);
         switch(position){
             case 0:
+                telemetry.addData("target pos", 0);
+                telemetry.update();
                 arm.setTargetPosition(0);
+                break;
             case 1:
-                arm.setTargetPosition(884);
+                telemetry.addData("target pos", 884);
+                telemetry.update();
+                arm.setTargetPosition(950);
+                break;
             case 2:
+                telemetry.addData("target pos", 6736);
+                telemetry.update();
                 arm.setTargetPosition(6736);
+                break;
             case 3:
+                telemetry.addData("target pos", 10473);
+                telemetry.update();
                 arm.setTargetPosition(10473);
+                break;
             default:
                 return;
         }
-
     }
 
     private void HandControl(){

@@ -40,8 +40,6 @@ public class swagbots_teleop extends LinearOpMode {
         arm.setTargetPosition(0);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setPower(1);
-        telemetry.addData("curr motor pos", arm.getCurrentPosition());
-        telemetry.update();
 
         // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -51,7 +49,7 @@ public class swagbots_teleop extends LinearOpMode {
                 WheelControl();
                 ArmControl();
                 HandControl();
-                telemetry.addData("hand pos", hand.getPosition());
+                telemetry.addData("hand", hand);
                 telemetry.update();
             }
         }
@@ -117,9 +115,9 @@ public class swagbots_teleop extends LinearOpMode {
         horizontal = gamepad1.left_stick_y / speedDiv;
         vertical = -gamepad1.left_stick_x / speedDiv;
 
-        telemetry.addData("Horizontal",horizontal);
-        telemetry.addData("Vertical",vertical);
-        telemetry.addData("Pivot",pivot);
+//        telemetry.addData("Horizontal",horizontal);
+//        telemetry.addData("Vertical",vertical);
+//        telemetry.addData("Pivot",pivot);
         TopRight.setPower(1.2 * (-pivot - vertical + horizontal));
         BottomRight.setPower(1.1 * (pivot - vertical - horizontal));
         TopLeft.setPower(-pivot - vertical - horizontal);
@@ -131,11 +129,11 @@ public class swagbots_teleop extends LinearOpMode {
      * max 11416
      * medium pole 10473
      * low pole 6736
-     * grab cone height 884
+     * grab cone height 950
      */
     private void ArmControl() {
         if(gamepad1.a){
-            encoder = 884;
+            encoder = 950;
         }
         if(gamepad1.x){
             encoder = 6736;
@@ -155,7 +153,7 @@ public class swagbots_teleop extends LinearOpMode {
         else {
             encoder += 30 * -gamepad1.right_stick_y;
         }
-        telemetry.update();
+//        telemetry.update();
     }
 
     /**
