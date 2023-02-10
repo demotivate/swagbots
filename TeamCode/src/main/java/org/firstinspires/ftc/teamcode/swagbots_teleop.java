@@ -132,6 +132,10 @@ public class swagbots_teleop extends LinearOpMode {
      * grab cone height 950
      */
     private void ArmControl() {
+        if(gamepad1.dpad_down){
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            return;
+        }
         if(gamepad1.a){
             encoder = 950;
         }
