@@ -37,15 +37,10 @@ public class DriveOnly extends LinearOpMode {
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-//                WheelControl();
-                PortTwoTest();
+                WheelControl();
                 telemetry.update();
             }
         }
-    }
-
-    private void PortTwoTest(){
-        BottomLeft.setPower(1);
     }
 
     private void WheelControl() {
@@ -71,9 +66,16 @@ public class DriveOnly extends LinearOpMode {
 //        TopLeft.setPower(-pivot - vertical - horizontal);
 //        BottomLeft.setPower(pivot - vertical + horizontal);
 
-        TopRight.setPower(1.1 * (-pivot + vertical - horizontal));
-        BottomRight.setPower(-pivot + vertical + horizontal);
+//        TopRight.setPower((-pivot - vertical + horizontal));
+//        //1.1
+//        BottomRight.setPower((pivot - vertical - horizontal));
+//        TopLeft.setPower(-pivot - vertical - horizontal);
+//        BottomLeft.setPower(pivot - vertical + horizontal);
+
+        TopRight.setPower((-pivot + vertical - horizontal));
+        //1.1
+        BottomRight.setPower((-pivot + vertical + horizontal));
         TopLeft.setPower(pivot + vertical + horizontal);
-        BottomLeft.setPower(1.5 * (pivot + vertical - horizontal));
+        BottomLeft.setPower(pivot + vertical - horizontal);
     }
 }
