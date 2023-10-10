@@ -33,7 +33,7 @@ public class DriveOnly extends LinearOpMode {
         CurrRotation = 0;
 
         // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
-        BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+//        BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -53,29 +53,23 @@ public class DriveOnly extends LinearOpMode {
         BottomLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         double speedDiv = (gamepad1.left_trigger > 0) ? 3.5 : 1;
-        pivot = gamepad1.right_stick_x / speedDiv;
-        horizontal = gamepad1.left_stick_y / speedDiv;
-        vertical = -gamepad1.left_stick_x / speedDiv;
+        pivot = gamepad1.left_stick_x / speedDiv;
+        horizontal = gamepad1.right_stick_x / speedDiv;
+        vertical = -1 * gamepad1.right_stick_y / speedDiv;
 
-//        telemetry.addData("Horizontal",horizontal);
-//        telemetry.addData("Vertical",vertical);
-//        telemetry.addData("Pivot",pivot);
-        //1.2
-//        TopRight.setPower((-pivot - vertical + horizontal));
-//        BottomRight.setPower((pivot - vertical - horizontal));
-//        TopLeft.setPower(-pivot - vertical - horizontal);
-//        BottomLeft.setPower(pivot - vertical + horizontal);
+        double topRight = -pivot + vertical - horizontal;
+        double bottomRight = -pivot + vertical + horizontal;
+        double topLeft = pivot + vertical + horizontal;
+        double bottomLeft = -pivot + vertical + horizontal;
 
-//        TopRight.setPower((-pivot - vertical + horizontal));
-//        //1.1
-//        BottomRight.setPower((pivot - vertical - horizontal));
-//        TopLeft.setPower(-pivot - vertical - horizontal);
-//        BottomLeft.setPower(pivot - vertical + horizontal);
+        TopRight.setPower(topRight);
+        BottomRight.setPower(bottomRight);
+        TopLeft.setPower(topLeft);
+        BottomLeft.setPower(bottomLeft);
 
-        TopRight.setPower((-pivot + vertical - horizontal));
-        //1.1
-        BottomRight.setPower((-pivot + vertical + horizontal));
-        TopLeft.setPower(pivot + vertical + horizontal);
-        BottomLeft.setPower(pivot + vertical - horizontal);
+        telemetry.addData("BottomLeft", bottomLeft);
+        telemetry.addData("TopRight", topRight);
+        telemetry.addData("TopLeft", topLeft);
+        telemetry.addData("bottomRight", bottomRight);
     }
 }
