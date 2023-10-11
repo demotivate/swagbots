@@ -47,7 +47,8 @@ public class Rizzlords_Teleop extends LinearOpMode {
         CurrRotation = 0;
 
         // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
-//        BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        TopLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -129,14 +130,19 @@ public class Rizzlords_Teleop extends LinearOpMode {
         BottomLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         double speedDiv = (gamepad1.left_trigger > 0) ? 3.5 : 1;
-        pivot = gamepad1.left_stick_x / speedDiv;
-        horizontal = gamepad1.right_stick_x / speedDiv;
+        pivot = gamepad1.right_stick_x / speedDiv;
+        horizontal = gamepad1.left_stick_x / speedDiv;
         vertical = -1 * gamepad1.right_stick_y / speedDiv;
 
         double topRight = -pivot + vertical - horizontal;
-        double bottomRight = -pivot + vertical + horizontal;
-        double topLeft = pivot + vertical + horizontal;
-        double bottomLeft = -pivot + vertical + horizontal;
+        double bottomRight = 2 * (-pivot + vertical + horizontal);
+        double topLeft = 2 * (pivot + vertical + horizontal);
+        double bottomLeft = 2 * (-pivot + vertical + horizontal);
+
+//        double topRight = (-pivot - vertical + horizontal);
+//        double bottomRight = 2 * (pivot - vertical - horizontal);
+//        double topLeft = (-pivot - vertical - horizontal);
+//        double bottomLeft = pivot - vertical + horizontal;
 
         TopRight.setPower(topRight);
         BottomRight.setPower(bottomRight);
