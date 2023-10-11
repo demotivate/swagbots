@@ -7,27 +7,38 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp(name = "Reset Encoder", group = "swagbots")
 public class ResetEncoder extends LinearOpMode {
 
-    private DcMotor arm;
-    private int encoder;
+    private DcMotor Arm;
+    private DcMotor ForeArm;
+    private int armEncoder;
+    private int handEncoder;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        arm = hardwareMap.get(DcMotor.class, "Arm");
+        Arm = hardwareMap.get(DcMotor.class, "Arm1");
+        ForeArm = hardwareMap.get(DcMotor.class, "Hand");
 
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        arm.setTargetPosition(0);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setPower(1);
+        RunUsingEncoder(Arm);
+        RunUsingEncoder(ForeArm);
 
         waitForStart();
         if(opModeIsActive()){
             while(opModeIsActive()){
                 if(gamepad1.a){
-                    arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    ForeArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 }
-                arm.setTargetPosition(encoder);
-                encoder += -gamepad1.right_stick_y;
+                Arm.setTargetPosition(armEncoder);
+                ForeArm.setTargetPosition(handEncoder);
+                armEncoder += -gamepad1.right_stick_y;
+                handEncoder += -gamepad1.left_stick_y;
             }
         }
+    }
+
+    private void RunUsingEncoder(DcMotor motor){
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setTargetPosition(0);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(1);
     }
 }
