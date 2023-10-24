@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 @Autonomous(name = "Rizzlords Autonomous", group = "Rizzlords")
 public class Rizzlords_Autonomous extends LinearOpMode {
-    OpenCvCamera camera;
+//    OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
     static final double FEET_PER_METER = 3.28084;
@@ -47,18 +47,22 @@ public class Rizzlords_Autonomous extends LinearOpMode {
     AprilTagDetection tagOfInterest = null;
 
     //hardware
-    private DcMotor arm;
-    private Servo hand;
     //    private ColorSensor Coloursensor;
     private DcMotor TopRight;
     private DcMotor BottomRight;
     private DcMotor TopLeft;
     private DcMotor BottomLeft;
 
-    //vars
-    private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor Arm;
+    private DcMotor ForeArm;
 
-    private int encoder;
+    private double CurrRotation;
+
+    private ElapsedTime runtime = new ElapsedTime();
+    private double encoderPower;
+    private int armEncoder;
+    private int foreArmEncoder;
+
 
     /**
      * This function is executed when this Op Mode is selected from the Driver Station.
@@ -67,42 +71,43 @@ public class Rizzlords_Autonomous extends LinearOpMode {
     public void runOpMode() {
 
         //april tag stuff
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
-
-        camera.setPipeline(aprilTagDetectionPipeline);
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
-            @Override
-            public void onOpened()
-            {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
-            }
-
-            @Override
-            public void onError(int errorCode)
-            {
-
-            }
-        });
+//        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+//        aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
+//
+//        camera.setPipeline(aprilTagDetectionPipeline);
+//        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+//        {
+//            @Override
+//            public void onOpened()
+//            {
+//                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+//            }
+//
+//            @Override
+//            public void onError(int errorCode)
+//            {
+//
+//            }
+//        });
 
         telemetry.setMsTransmissionInterval(50);
-
-        arm = hardwareMap.get(DcMotor.class, "Arm");
-        hand = hardwareMap.get(Servo.class, "hand");
         TopRight = hardwareMap.get(DcMotor.class, "Top Right");
         BottomRight = hardwareMap.get(DcMotor.class, "Bottom Right");
         TopLeft = hardwareMap.get(DcMotor.class, "Top Left");
         BottomLeft = hardwareMap.get(DcMotor.class, "Bottom Left");
+
+        Arm = hardwareMap.get(DcMotor.class, "Arm1");
+        ForeArm = hardwareMap.get(DcMotor.class, "Hand");
+        encoderPower = .3;
+        RunUsingEncoder(Arm);
+        RunUsingEncoder(ForeArm);
+
+        CurrRotation = 0;
+
+        // initilization blocks, right motor = front right, left motor = front left, arm = back right, hand = back left
         BottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        arm.setTargetPosition(0);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setPower(1);
-
-        hand.setPosition(1);
+        TopLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Put initialization blocks here.
 //        waitForStart();
@@ -110,99 +115,95 @@ public class Rizzlords_Autonomous extends LinearOpMode {
          * The INIT-loop:
          * This REPLACES waitForStart!
          */
-        while (!isStarted() && !isStopRequested())
-        {
-            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-
-            if(currentDetections.size() != 0)
-            {
-                boolean tagFound = false;
-
-                for(AprilTagDetection tag : currentDetections)
-                {
-                    if(tag.id == LEFT || tag.id == MIDDLE || tag.id == RIGHT)
-                    {
-                        tagOfInterest = tag;
-                        tagFound = true;
-                        break;
-                    }
-                }
-
-                if(tagFound)
-                {
-                    telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
-                    tagToTelemetry(tagOfInterest);
-                }
-                else
-                {
-                    telemetry.addLine("Don't see tag of interest :(");
-
-                    if(tagOfInterest == null)
-                    {
-                        telemetry.addLine("(The tag has never been seen)");
-                    }
-                    else
-                    {
-                        telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                        tagToTelemetry(tagOfInterest);
-                    }
-                }
-
-            }
-            else
-            {
-                telemetry.addLine("Don't see tag of interest :(");
-
-                if(tagOfInterest == null)
-                {
-                    telemetry.addLine("(The tag has never been seen)");
-                }
-                else
-                {
-                    telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                    tagToTelemetry(tagOfInterest);
-                }
-
-            }
-
-            telemetry.update();
-            sleep(20);
-        }
-
-        /*
-         * The START command just came in: now work off the latest snapshot acquired
-         * during the init loop.
-         */
-
-        /* Update the telemetry */
-        if(tagOfInterest != null)
-        {
-            telemetry.addLine("Tag snapshot:\n");
-            tagToTelemetry(tagOfInterest);
-            telemetry.update();
-        }
-        else
-        {
-            telemetry.addLine("No tag snapshot available, it was never sighted during the init loop :(");
-            telemetry.update();
-        }
+//        while (!isStarted() && !isStopRequested())
+//        {
+//            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+//
+//            if(currentDetections.size() != 0)
+//            {
+//                boolean tagFound = false;
+//
+//                for(AprilTagDetection tag : currentDetections)
+//                {
+//                    if(tag.id == LEFT || tag.id == MIDDLE || tag.id == RIGHT)
+//                    {
+//                        tagOfInterest = tag;
+//                        tagFound = true;
+//                        break;
+//                    }
+//                }
+//
+//                if(tagFound)
+//                {
+//                    telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
+//                    tagToTelemetry(tagOfInterest);
+//                }
+//                else
+//                {
+//                    telemetry.addLine("Don't see tag of interest :(");
+//
+//                    if(tagOfInterest == null)
+//                    {
+//                        telemetry.addLine("(The tag has never been seen)");
+//                    }
+//                    else
+//                    {
+//                        telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+//                        tagToTelemetry(tagOfInterest);
+//                    }
+//                }
+//
+//            }
+//            else
+//            {
+//                telemetry.addLine("Don't see tag of interest :(");
+//
+//                if(tagOfInterest == null)
+//                {
+//                    telemetry.addLine("(The tag has never been seen)");
+//                }
+//                else
+//                {
+//                    telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+//                    tagToTelemetry(tagOfInterest);
+//                }
+//
+//            }
+//
+//            telemetry.update();
+//            sleep(20);
+//        }
+//
+//        /*
+//         * The START command just came in: now work off the latest snapshot acquired
+//         * during the init loop.
+//         */
+//
+//        /* Update the telemetry */
+//        if(tagOfInterest != null)
+//        {
+//            telemetry.addLine("Tag snapshot:\n");
+//            tagToTelemetry(tagOfInterest);
+//            telemetry.update();
+//        }
+//        else
+//        {
+//            telemetry.addLine("No tag snapshot available, it was never sighted during the init loop :(");
+//            telemetry.update();
+//        }
 
         /* Actually do something useful */
-        if(tagOfInterest == null){
-            //default trajectory
-            RunSequence(0);
-        } else if(tagOfInterest.id == LEFT){
-            //end left
-            RunSequence(1);
-        } else if(tagOfInterest.id == MIDDLE){
-            //end middle
-            RunSequence(2);
-        } else {
-            //end right
-            RunSequence(3);
-        }
+        waitForStart();
+        RunSequence();
 
         telemetry.update();
+    }
+
+    private void RunUsingEncoder(DcMotor motor){
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setTargetPosition(0);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(.1);
     }
 
     /**
@@ -214,100 +215,33 @@ public class Rizzlords_Autonomous extends LinearOpMode {
      * 2 - end middle
      * 3 - end right
      */
-    private void RunSequence(int trajectory){
-        HandControl();
-        ArmControlPreset(1);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 1)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
+    private void RunSequence(){
+        double blockTravelTime = 1.5/.3, rightRotation = 2.5/.3;
 
-        moveXY(-.2, 0, 0);
+        moveXY(0, .3, 0);
         runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 3)){
+        while(opModeIsActive() && (runtime.seconds() < (blockTravelTime * .3))){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
         TerminateMovement();
 
-        ArmControlPreset(0);
+        moveXY(0, 0, .6);
         runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 1)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        HandControl();
-
-        moveXY(0, -.2, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 1.4)){
+        while(opModeIsActive() && (runtime.seconds() < (rightRotation * 0.6))){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
         TerminateMovement();
 
-        //arm up
-        ArmControlPreset(3);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 5)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        HandControl();
-
-        //arm down
-        ArmControlPreset(0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 5)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        TerminateMovement();
-
-        moveXY(0, .2, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < 1.4)){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-        TerminateMovement();
-
-        moveXY(.2, 0, 0);
-        runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < ((trajectory == 0) ? 3 : 0))){
-            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-        TerminateMovement();
-
-        switch(trajectory){
-            case 1:
-                moveXY(0, .2, 0);
-                runtime.reset();
-                while(opModeIsActive() && (runtime.seconds() < 1.4)){
-                    telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-                    telemetry.update();
-                }
-                TerminateMovement();
-                break;
-            case 3:
-                moveXY(0, -.2, 0);
-                runtime.reset();
-                while(opModeIsActive() && (runtime.seconds() < 1.4)){
-                    telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-                    telemetry.update();
-                }
-                TerminateMovement();
-                break;
-            default:
-                break;
-        }
-
-        HandControl();
+//        ArmControlPreset(0);
+//        runtime.reset();
+//        while(opModeIsActive() && (runtime.seconds() < 1)){
+//            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+//            telemetry.update();
+//        }
+//
+//        HandControl();
     }
 
     /**
@@ -321,47 +255,75 @@ public class Rizzlords_Autonomous extends LinearOpMode {
     /**
      * arm control specific
      */
-    private void ArmControl(int target) {
-        arm.setPower(1);
-        if (target < 0){
-            target = 0;
-        }
-        else if(target > 11416){
-            target = 11416;
-        }
-        arm.setTargetPosition(target);
-    }
+//    private void ArmControl(int target) {
+//        arm.setPower(1);
+//        if (target < 0){
+//            target = 0;
+//        }
+//        else if(target > 11416){
+//            target = 11416;
+//        }
+//        arm.setTargetPosition(target);
+//    }
 
     /**
      *
      * @param position
-     * position = 0: min 0
-     * = 1: grab cone height 950
-     * = 2: low pole 6736
-     * = 3: medium pole 10473
+     * position = 0: default
+     * position = 1: ready to pickup
+     * position = 2: pickup
+     * position = 3: place
      */
     private void ArmControlPreset(int position){
-        arm.setPower(1);
+        Arm.setPower(encoderPower);
         switch(position){
             case 0:
                 telemetry.addData("target pos", 0);
                 telemetry.update();
-                arm.setTargetPosition(0);
+                Arm.setTargetPosition(0);
                 break;
             case 1:
                 telemetry.addData("target pos", 884);
                 telemetry.update();
-                arm.setTargetPosition(950);
+                Arm.setTargetPosition(537);
                 break;
             case 2:
                 telemetry.addData("target pos", 6736);
                 telemetry.update();
-                arm.setTargetPosition(6736);
+                Arm.setTargetPosition(370);
                 break;
             case 3:
                 telemetry.addData("target pos", 10473);
                 telemetry.update();
-                arm.setTargetPosition(10473);
+                Arm.setTargetPosition(906);
+                break;
+            default:
+                return;
+        }
+    }
+
+    private void ForeArmControlPreset(int position){
+        ForeArm.setPower(encoderPower);
+        switch(position){
+            case 0:
+                telemetry.addData("target pos", 0);
+                telemetry.update();
+                ForeArm.setTargetPosition(0);
+                break;
+            case 1:
+                telemetry.addData("target pos", 884);
+                telemetry.update();
+                ForeArm.setTargetPosition(-680);
+                break;
+            case 2:
+                telemetry.addData("target pos", 6736);
+                telemetry.update();
+                ForeArm.setTargetPosition(-680);
+                break;
+            case 3:
+                telemetry.addData("target pos", 10473);
+                telemetry.update();
+                ForeArm.setTargetPosition(-680);
                 break;
             default:
                 return;
@@ -369,7 +331,7 @@ public class Rizzlords_Autonomous extends LinearOpMode {
     }
 
     private void HandControl(){
-        hand.setPosition((hand.getPosition()) == 0 ? 1 : 0);
+//        hand.setPosition((hand.getPosition()) == 0 ? 1 : 0);
     }
 
     /**
@@ -383,12 +345,19 @@ public class Rizzlords_Autonomous extends LinearOpMode {
      * Describe this function...
      */
     private void omnidirectional(double x, double y, double pivot) {
-        //1.2
-        TopRight.setPower((-pivot - y + x));
-        //1.1
-        BottomRight.setPower((pivot - y - x));
-        TopLeft.setPower((-pivot - y - x));
-        BottomLeft.setPower((pivot - y + x));
+        int multiplier = (pivot != 0) ? 2 : 1;
+//        int multiplier = 2;
+        telemetry.addData("drive multiplier:", multiplier);
+
+        double topRight = -pivot + y - x;
+        double bottomRight = multiplier * (-pivot + y + x);
+        double topLeft = multiplier * (pivot + y + x);
+        double bottomLeft = multiplier * (-pivot + y + x);
+
+        TopRight.setPower(topRight);
+        BottomRight.setPower(bottomRight);
+        TopLeft.setPower(topLeft);
+        BottomLeft.setPower(bottomLeft);
     }
 
     void tagToTelemetry(AprilTagDetection detection)

@@ -26,8 +26,10 @@ public class Rizzlords_Teleop extends LinearOpMode {
     private double CurrRotation;
 
     private ElapsedTime runtime = new ElapsedTime();
+    private double encoderPower;
     private int armEncoder;
     private int foreArmEncoder;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -41,6 +43,7 @@ public class Rizzlords_Teleop extends LinearOpMode {
         //Arm hand motors
         Arm = hardwareMap.get(DcMotor.class, "Arm1");
         ForeArm = hardwareMap.get(DcMotor.class, "Hand");
+        encoderPower = .8;
         RunUsingEncoder(Arm);
         RunUsingEncoder(ForeArm);
 
@@ -53,6 +56,8 @@ public class Rizzlords_Teleop extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 WheelControl();
+                ArmControl();
+                ForeArmControl();
                 telemetry.update();
             }
         }
@@ -62,7 +67,7 @@ public class Rizzlords_Teleop extends LinearOpMode {
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motor.setTargetPosition(0);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motor.setPower(1);
+        motor.setPower(.1);
     }
 
     // arm/forearm control notes
@@ -71,53 +76,61 @@ public class Rizzlords_Teleop extends LinearOpMode {
     // pick up pos - down
     // place onto board pos - right
     private void ArmControl(){
+        int MAX = 933;
+        int MIN = 0;
         if(gamepad1.dpad_up){
             armEncoder = 0;
         }
         else if(gamepad1.dpad_left){
-            armEncoder = 45;
+            armEncoder = 0;
         }
         else if(gamepad1.dpad_down){
-            armEncoder = 40;
+            armEncoder = 0;
         }
         else if(gamepad1.dpad_right){
-            armEncoder = 150;
+            armEncoder = 933;
         }
 
         telemetry.addData("Arm Encoder:", armEncoder);
-        Arm.setPower(1);
+        Arm.setPower(encoderPower);
         Arm.setTargetPosition(armEncoder);
-        if (armEncoder < 0) {
-            armEncoder = 0;
+        if (armEncoder < MIN) {
+            armEncoder = MIN;
         }
-        else if (armEncoder > 180) {
-            armEncoder = 180;
+        else if (armEncoder > MAX) {
+            armEncoder = MAX;
         }
     }
 
     private void ForeArmControl(){
+        int MAX = 0;
+        int MIN = -315;
         if(gamepad1.dpad_up){
             foreArmEncoder = 0;
         }
         else if(gamepad1.dpad_left){
-            foreArmEncoder = 270;
+            foreArmEncoder = -315;
         }
         else if(gamepad1.dpad_down){
-            foreArmEncoder = 270;
+            foreArmEncoder = -315;
         }
         else if(gamepad1.dpad_right){
-            foreArmEncoder = 90;
+            foreArmEncoder = -308;
         }
 
         telemetry.addData("Forearm Encoder:", foreArmEncoder);
-        ForeArm.setPower(1);
+        ForeArm.setPower(encoderPower);
         ForeArm.setTargetPosition(foreArmEncoder);
-        if (foreArmEncoder < 0) {
-            foreArmEncoder = 0;
+        if (foreArmEncoder < MIN) {
+            foreArmEncoder = MIN;
         }
-        else if (foreArmEncoder > 330) {
-            foreArmEncoder = 330;
+        else if (foreArmEncoder > MAX) {
+            foreArmEncoder = MAX;
         }
+    }
+
+    private void HandControl(){
+//        MAKE IT TOGGLE FUNCTION
     }
 
     private void WheelControl() {
