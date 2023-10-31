@@ -22,6 +22,7 @@ public class Rizzlords_Teleop extends LinearOpMode {
     //Arm and Hand Motors
     private DcMotor Arm;
     private DcMotor ForeArm;
+    private Servo Hand;
 
     private double CurrRotation;
 
@@ -42,7 +43,8 @@ public class Rizzlords_Teleop extends LinearOpMode {
 
         //Arm hand motors
         Arm = hardwareMap.get(DcMotor.class, "Arm1");
-        ForeArm = hardwareMap.get(DcMotor.class, "Hand");
+        ForeArm = hardwareMap.get(DcMotor.class, "Forearm");
+        Hand = hardwareMap.get(Servo.class, "Hand");
         encoderPower = .8;
         RunUsingEncoder(Arm);
         RunUsingEncoder(ForeArm);
@@ -58,6 +60,7 @@ public class Rizzlords_Teleop extends LinearOpMode {
                 WheelControl();
                 ArmControl();
                 ForeArmControl();
+                HandControl();
                 telemetry.update();
             }
         }
@@ -130,7 +133,13 @@ public class Rizzlords_Teleop extends LinearOpMode {
     }
 
     private void HandControl(){
-//        MAKE IT TOGGLE FUNCTION
+        //TODO: figure out optimal hand positions
+        double posA = 0.3, posB = 0.7;
+        if(gamepad1.a){
+            Hand.setPosition(Hand.getPosition() == posA ? posB : posA);
+            telemetry.addData("current hand position: ", Hand.getPosition());
+            sleep(250);
+        }
     }
 
     private void WheelControl() {

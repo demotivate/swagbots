@@ -15,7 +15,7 @@ public class ResetEncoder extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Arm = hardwareMap.get(DcMotor.class, "Arm1");
-        ForeArm = hardwareMap.get(DcMotor.class, "Hand");
+        ForeArm = hardwareMap.get(DcMotor.class, "Forearm");
 
         RunUsingEncoder(Arm);
         RunUsingEncoder(ForeArm);

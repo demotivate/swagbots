@@ -55,6 +55,7 @@ public class Rizzlords_Autonomous extends LinearOpMode {
 
     private DcMotor Arm;
     private DcMotor ForeArm;
+    private Servo Hand;
 
     private double CurrRotation;
 
@@ -98,7 +99,8 @@ public class Rizzlords_Autonomous extends LinearOpMode {
         BottomLeft = hardwareMap.get(DcMotor.class, "Bottom Left");
 
         Arm = hardwareMap.get(DcMotor.class, "Arm1");
-        ForeArm = hardwareMap.get(DcMotor.class, "Hand");
+        ForeArm = hardwareMap.get(DcMotor.class, "Forearm");
+        Hand = hardwareMap.get(Servo.class, "Hand");
         encoderPower = .3;
         RunUsingEncoder(Arm);
         RunUsingEncoder(ForeArm);
@@ -226,9 +228,9 @@ public class Rizzlords_Autonomous extends LinearOpMode {
         }
         TerminateMovement();
 
-        moveXY(0, 0, .6);
+        moveXY(0, 0, .3);
         runtime.reset();
-        while(opModeIsActive() && (runtime.seconds() < (rightRotation * 0.6))){
+        while(opModeIsActive() && (runtime.seconds() < (rightRotation * 0.3))){
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
@@ -345,8 +347,8 @@ public class Rizzlords_Autonomous extends LinearOpMode {
      * Describe this function...
      */
     private void omnidirectional(double x, double y, double pivot) {
-        int multiplier = (pivot != 0) ? 2 : 1;
-//        int multiplier = 2;
+//        int multiplier = (pivot != 0) ? 2 : 1;
+        int multiplier = 1;
         telemetry.addData("drive multiplier:", multiplier);
 
         double topRight = -pivot + y - x;
