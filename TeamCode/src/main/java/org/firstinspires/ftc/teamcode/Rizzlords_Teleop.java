@@ -23,6 +23,7 @@ public class Rizzlords_Teleop extends LinearOpMode {
     private DcMotor Arm;
     private DcMotor ForeArm;
     private Servo Hand;
+    double handOpen, handClosed;
 
     private double CurrRotation;
 
@@ -48,6 +49,9 @@ public class Rizzlords_Teleop extends LinearOpMode {
         encoderPower = .8;
         RunUsingEncoder(Arm);
         RunUsingEncoder(ForeArm);
+        handOpen = 0.3;
+        handClosed = 0.1;
+        Hand.setPosition(handOpen);
 
         CurrRotation = 0;
 
@@ -85,10 +89,10 @@ public class Rizzlords_Teleop extends LinearOpMode {
             armEncoder = 0;
         }
         else if(gamepad1.dpad_left){
-            armEncoder = 0;
+            armEncoder = -23;
         }
         else if(gamepad1.dpad_down){
-            armEncoder = 0;
+            armEncoder = -23;
         }
         else if(gamepad1.dpad_right){
             armEncoder = 933;
@@ -107,18 +111,18 @@ public class Rizzlords_Teleop extends LinearOpMode {
 
     private void ForeArmControl(){
         int MAX = 0;
-        int MIN = -315;
+        int MIN = -800;
         if(gamepad1.dpad_up){
             foreArmEncoder = 0;
         }
         else if(gamepad1.dpad_left){
-            foreArmEncoder = -315;
+            foreArmEncoder = -580;
         }
         else if(gamepad1.dpad_down){
-            foreArmEncoder = -315;
+            foreArmEncoder = -580;
         }
         else if(gamepad1.dpad_right){
-            foreArmEncoder = -308;
+            foreArmEncoder = -752;
         }
 
         telemetry.addData("Forearm Encoder:", foreArmEncoder);
@@ -133,10 +137,8 @@ public class Rizzlords_Teleop extends LinearOpMode {
     }
 
     private void HandControl(){
-        //TODO: figure out optimal hand positions
-        double posA = 0.3, posB = 0.7;
         if(gamepad1.a){
-            Hand.setPosition(Hand.getPosition() == posA ? posB : posA);
+            Hand.setPosition(Hand.getPosition() == handOpen ? handClosed : handOpen);
             telemetry.addData("current hand position: ", Hand.getPosition());
             sleep(250);
         }
